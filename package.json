@@ -1,12 +1,13 @@
 {
-    "name": "auth-client",
-    "private": true,
-    "version": "0.0.0",
+    "name": "@deriv-com/auth-client",
+    "private": false,
+    "version": "0.0.0-development",
     "type": "module",
     "scripts": {
         "dev": "vite",
         "build": "tsc -b && vite build",
         "lint": "eslint .",
+        "prepublish": "npm run build",
         "preview": "vite preview"
     },
     "dependencies": {
@@ -17,10 +18,19 @@
         "react-dom": "^18.3.1"
     },
     "devDependencies": {
+        "semantic-release": "^24.1.0",
+        "@semantic-release/changelog": "^6.0.3",
+        "@semantic-release/github": "^10.3.3",
+        "@semantic-release/npm": "^12.0.1",
+        "@semantic-release/release-notes-generator": "^13.0.0",
         "@eslint/js": "^9.9.0",
+        "@types/node": "^22.5.4",
         "@types/react": "^18.3.5",
         "@types/react-dom": "^18.3.0",
+        "@vitejs/plugin-react": "^4.3.1",
+        "glob": "^11.0.0",
         "@vitejs/plugin-react-swc": "^3.5.0",
+        "vite-plugin-dts": "^4.2.1",
         "eslint": "^9.9.0",
         "eslint-plugin-react-hooks": "^5.1.0-rc.0",
         "eslint-plugin-react-refresh": "^0.4.9",
