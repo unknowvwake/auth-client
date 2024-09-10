@@ -10,6 +10,9 @@
         "prepublish": "npm run build",
         "preview": "vite preview"
     },
+    "publishConfig": {
+        "access": "public"
+    },
     "dependencies": {
         "@deriv-com/api-hooks": "^1.6.5",
         "@deriv-com/utils": "^0.0.33",
