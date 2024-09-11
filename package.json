@@ -8,8 +8,10 @@
         "build": "tsc -b && vite build",
         "lint": "eslint .",
         "prepublish": "npm run build",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "watch": "vite build --watch"
     },
+    "types": "./dist/auth-client.d.ts",
     "publishConfig": {
         "access": "public"
     },
