@@ -11,7 +11,7 @@ export default defineConfig({
         react(),
         dts({
             include: ['src'],
-            exclude: ['src/**/*.spec.tsx'],
+            exclude: ['src/**/*.spec.tsx', 'src/App.tsx', 'src/main.tsx'],
             tsconfigPath: './tsconfig.app.json',
             insertTypesEntry: true,
         }),
@@ -25,11 +25,19 @@ export default defineConfig({
         },
         copyPublicDir: false,
         rollupOptions: {
-            external: ['react', 'react/jsx-runtime', 'react-dom'],
+            external: ['react', 'react/jsx-runtime', 'react-dom', '@deriv-com/api-hooks', '@deriv-com/utils'],
             input: Object.fromEntries(
                 glob
                     .sync('src/**/*.{ts,tsx}', {
-                        ignore: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx', '**/__tests__/**'],
+                        ignore: [
+                            '**/*.test.ts',
+                            '**/*.test.tsx',
+                            '**/*.spec.ts',
+                            '**/*.spec.tsx',
+                            '**/__tests__/**',
+                            './src/App.tsx',
+                            './src/main.tsx',
+                        ],
                     })
                     .map(file => {
                         return [
