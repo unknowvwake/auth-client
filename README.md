@@ -1,6 +1,6 @@
 # Auth Client Project
 
-This project is designed to handle authentication using OAuth2 with Hydra. The project is divided into two phases:
+This project is designed to handle authentication using OAuth2 with Hydra and OIDC. The project is divided into two phases:
 
 1. **Phase 1**: OAuth2 with Hydra
 2. **Phase 2**: OIDC Public Client (coming soon)
