@@ -1,6 +1,5 @@
 import React, { createContext, useEffect, useCallback } from 'react';
 import { getOAuthLogoutUrl, getOAuthOrigin } from '../constants/';
-import { useAuthData } from '@deriv-com/api-hooks';
 
 type MessageEvent = {
     data: 'logout_complete' | 'logout_error';
@@ -14,18 +13,12 @@ type OAuth2ContextValue = {
 type OAuth2ProviderProps = {
     children: React.ReactNode;
     oauthUrl: string;
+    WSLogoutAndRedirect: () => void;
 };
 
 export const OAuth2Context = createContext<OAuth2ContextValue | undefined>(undefined);
 
-export const OAuth2Provider: React.FC<OAuth2ProviderProps> = ({ children, oauthUrl }) => {
-    const { logout } = useAuthData();
-
-    const WSLogoutAndRedirect = useCallback(async () => {
-        await logout();
-        window.open(oauthUrl, '_self');
-    }, [logout, oauthUrl]);
-
+export const OAuth2Provider: React.FC<OAuth2ProviderProps> = ({ children, WSLogoutAndRedirect }) => {
     useEffect(() => {
         const onMessage = async (event: MessageEvent) => {
             const allowedOrigin = getOAuthOrigin();
