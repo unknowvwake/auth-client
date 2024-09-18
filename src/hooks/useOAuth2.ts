@@ -19,7 +19,7 @@ type OAuth2Config = {
 /**
  * Custom hook to handle OAuth2 logout and redirection.
  *
- * @param {OAuth2Config} config - Configuration object containing OAuth2 enabled apps and initialisation flag.
+ * @param {OAuth2Config} config - Configuration object containing OAuth2 enabled apps flag and initialisation flag.
  * @param {(oauthUrl: string) => Promise<void>} WSLogoutAndRedirect - Function to handle logout and redirection.
  * @returns {{ OAuth2Logout: () => Promise<void> }} - Object containing the OAuth2Logout function.
  */
