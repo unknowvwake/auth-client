@@ -11,7 +11,7 @@ type hydraBEApps = {
     enabled_for: number[];
 };
 
-type OAuth2Config = {
+type OAuth2GBConfig = {
     OAuth2EnabledApps: hydraBEApps[];
     OAuth2EnabledAppsInitialised: boolean;
 };
@@ -23,7 +23,7 @@ type OAuth2Config = {
  * @param {(oauthUrl: string) => Promise<void>} WSLogoutAndRedirect - Function to handle logout and redirection.
  * @returns {{ OAuth2Logout: () => Promise<void> }} - Object containing the OAuth2Logout function.
  */
-export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2Config, WSLogoutAndRedirect: () => Promise<void>) => {
+export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRedirect: () => Promise<void>) => {
     const { OAuth2EnabledApps, OAuth2EnabledAppsInitialised } = OAuth2GrowthBookConfig;
     const isOAuth2Enabled = useIsOAuth2Enabled(OAuth2EnabledApps, OAuth2EnabledAppsInitialised);
 
