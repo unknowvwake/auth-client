@@ -12,7 +12,7 @@ type hydraBEApps = {
  * @returns {boolean} - a boolean indicating whether OAuth2 is enabled for the current app id
  */
 export const useIsOAuth2Enabled = (
-    OAuth2EnabledApps: hydraBEApps[],
+    OAuth2EnabledApps: hydraBEApps[] = [],
     OAuth2EnabledAppsInitialised: boolean
 ): boolean => {
     const [isOAuth2Enabled, setIsOAuth2Enabled] = useState<boolean>(false);
@@ -20,7 +20,7 @@ export const useIsOAuth2Enabled = (
 
     useEffect(() => {
         if (OAuth2EnabledAppsInitialised) {
-            const FEHydraAppIds = OAuth2EnabledApps.length
+            const FEHydraAppIds = OAuth2EnabledApps?.length
                 ? (OAuth2EnabledApps[OAuth2EnabledApps.length - 1]?.enabled_for ?? [])
                 : [];
             setIsOAuth2Enabled(FEHydraAppIds.includes(+(appId as string)));
