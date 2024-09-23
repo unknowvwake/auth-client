@@ -50,37 +50,41 @@ In this phase, we use OAuth2 with Hydra for authentication.
 
 ### Using the OAuth2 Provider
 
-Wrap your application with the `OAuth2Provider` and use the `useOAuth` hook within your components.
+Use the `useOAuth2` hook within your components.
 
 ```typescript
 // src/App.tsx
 import React from 'react';
-import { OAuth2Provider } from './context/auth-context';
-import useOAuth from './hooks/useOAuth';
-import { useAuthData } from '@deriv-com/api-hooks';
+import { useOAuth2 } from '@deriv-com/auth-client';
 
-const App: React.FC = () => {
-    const { logout } = useAuthData();
-    const oauthUrl = 'https://your-oauth-url.com';
+const YourComponent = () => {
+     const [OAuth2EnabledApps, OAuth2EnabledAppsInitialised] = useGrowthbookGetFeatureValue<hydraBEApps>({
+        featureFlag: 'hydra_be',
+    });
 
-    return (
-        <OAuth2Provider logout={logout} oauthUrl={oauthUrl}>
-            <YourComponent />
-        </OAuth2Provider>
-    );
-};
+    const { logout } = useAuthData(); // Your custom hook or function to handle logout
 
-const YourComponent: React.FC = () => {
-    const { oAuth2Logout } = useOAuth();
+    const OAuth2GrowthBookConfig = {
+       OAuth2EnabledApps,
+       OAuth2EnabledAppsInitialised
+    };
+
+    const WSLogoutAndRedirect = async () => {
+        await logout();
+        // Redirect or perform any additional actions here
+    };
+
+    const { OAuth2Logout } = useOAuth2(OAuth2GrowthBookConfig, WSLogoutAndRedirect);
 
     return (
         <div>
-            <button onClick={oAuth2Logout}>Logout</button>
+            <button onClick={onLogout}>Logout</button>
         </div>
     );
 };
 
-export default App;
+export default YourComponent;
+
 ```
 
 ## Phase 2: OIDC Public Client
