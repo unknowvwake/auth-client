@@ -78,7 +78,7 @@ const YourComponent = () => {
 
     return (
         <div>
-            <button onClick={onLogout}>Logout</button>
+            <button onClick={OAuth2Logout}>Logout</button>
         </div>
     );
 };
