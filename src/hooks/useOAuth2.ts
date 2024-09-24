@@ -7,12 +7,12 @@ type MessageEvent = {
     origin: string;
 };
 
-type hydraBEApps = {
+export type TOAuth2EnabledAppList = {
     enabled_for: number[];
-};
+}[];
 
 type OAuth2GBConfig = {
-    OAuth2EnabledApps: hydraBEApps[];
+    OAuth2EnabledApps: TOAuth2EnabledAppList;
     OAuth2EnabledAppsInitialised: boolean;
 };
 

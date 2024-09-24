@@ -48,17 +48,16 @@ In this phase, we use OAuth2 with Hydra for authentication.
 1. Follow the [Hydra documentation](https://service-auth.deriv.team/resources/hydra-qa-setup/) to set up Hydra in QA box environment.
 2. Configure your OAuth2 settings in the project.
 
-### Using the OAuth2 Provider
+### Using the OAuth2 Hook
 
 Use the `useOAuth2` hook within your components.
 
 ```typescript
-// src/App.tsx
 import React from 'react';
-import { useOAuth2 } from '@deriv-com/auth-client';
+import { useOAuth2, TOAuth2EnabledAppList } from '@deriv-com/auth-client';
 
 const YourComponent = () => {
-     const [OAuth2EnabledApps, OAuth2EnabledAppsInitialised] = useGrowthbookGetFeatureValue<hydraBEApps>({
+     const [OAuth2EnabledApps, OAuth2EnabledAppsInitialised] = useGrowthbookGetFeatureValue<TOAuth2EnabledAppList>({
         featureFlag: 'hydra_be',
     });
 
