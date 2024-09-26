@@ -58,7 +58,6 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
             iframe = document.createElement('iframe');
             iframe.id = 'logout-iframe';
             iframe.style.display = 'none';
-            iframe.setAttribute('sandbox', 'allow-same-origin');
             document.body.appendChild(iframe);
 
             setTimeout(() => {
