@@ -32,11 +32,10 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
 
         const onMessage = async (event: MessageEvent) => {
             const allowedOrigin = getOAuthOrigin();
-            console.log(event)
-            console.log(allowedOrigin)
             if (allowedOrigin === event.origin) {
                 if (event.data === 'logout_complete') {
-                    WSLogoutAndRedirect();
+                    console.warn("logout completed")
+                    await WSLogoutAndRedirect();
                 } else {
                     console.warn('Unexpected message received: ', event.data);
                 }
@@ -51,7 +50,7 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
 
     const OAuth2Logout = useCallback(async () => {
         if (!isOAuth2Enabled) {
-            WSLogoutAndRedirect();
+            await WSLogoutAndRedirect();
             return;
         }
 
@@ -62,8 +61,8 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
             iframe.style.display = 'none';
             document.body.appendChild(iframe);
 
-            setTimeout(() => {
-                WSLogoutAndRedirect();
+            setTimeout(async () => {
+                await WSLogoutAndRedirect();
             }, 10000);
         }
 
