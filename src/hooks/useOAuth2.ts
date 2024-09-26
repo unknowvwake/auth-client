@@ -34,6 +34,7 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
             const allowedOrigin = getOAuthOrigin();
             if (allowedOrigin === event.origin) {
                 if (event.data === 'logout_complete') {
+                    console.warn("logout completed")
                     await WSLogoutAndRedirect();
                 } else {
                     console.warn('Unexpected message received: ', event.data);
