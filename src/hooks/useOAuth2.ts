@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react';
-import { getOAuthLogoutUrl, getOAuthOrigin } from '../constants/';
+import { getOAuthLogoutUrl } from '../constants/';
 import { useIsOAuth2Enabled } from './useIsOAuth2Enabled';
 
 type MessageEvent = {
@@ -31,18 +31,10 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
         if (!isOAuth2Enabled) return;
 
         const onMessage = async (event: MessageEvent) => {
-            const allowedOrigin = getOAuthOrigin();
-            console.log('allowedOrigin', allowedOrigin);
-            console.log('event.origin', event);
-            if (allowedOrigin === event.origin) {
-                if (event.data === 'logout_complete') {
-                    console.warn('logout completed');
-                    WSLogoutAndRedirect();
-                } else {
-                    console.warn('Unexpected message received: ', event.data);
-                }
+            if (event.data === 'logout_complete') {
+                WSLogoutAndRedirect();
             } else {
-                console.warn('Unexpected postmessage origin: ', event.origin);
+                console.warn('Unexpected message received: Logout failed ', event.data);
             }
         };
 
