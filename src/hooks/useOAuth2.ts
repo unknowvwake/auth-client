@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { getOAuthLogoutUrl } from '../constants/';
 import { useIsOAuth2Enabled } from './useIsOAuth2Enabled';
 
@@ -27,28 +27,23 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
     const { OAuth2EnabledApps, OAuth2EnabledAppsInitialised } = OAuth2GrowthBookConfig;
     const isOAuth2Enabled = useIsOAuth2Enabled(OAuth2EnabledApps, OAuth2EnabledAppsInitialised);
 
-    useEffect(() => {
-        if (!isOAuth2Enabled) return;
-
-        const onMessage = async (event: MessageEvent) => {
-            console.warn('Message event received:', event);
-            if (event.data === 'logout_complete') {
-                console.log(event);
-                WSLogoutAndRedirect();
-            } else {
-                console.warn('Unexpected message received: Logout failed ', event.data);
-            }
-        };
-
-        window.addEventListener('message', onMessage);
-        return () => window.removeEventListener('message', onMessage);
-    }, [isOAuth2Enabled, WSLogoutAndRedirect]);
+    const timeout = useRef<ReturnType<typeof setTimeout>>();
 
     const OAuth2Logout = useCallback(async () => {
         if (!isOAuth2Enabled) {
             WSLogoutAndRedirect();
             return;
         }
+
+        const onMessage = (event: MessageEvent) => {
+            if (event.data === 'logout_complete') {
+                console.log('logout', event.data);
+                WSLogoutAndRedirect();
+                window.removeEventListener('message', onMessage);
+                clearTimeout(timeout.current);
+            }
+        };
+        window.addEventListener('message', onMessage);
 
         let iframe: HTMLIFrameElement | null = document.getElementById('logout-iframe') as HTMLIFrameElement;
         if (!iframe) {
@@ -57,7 +52,7 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
             iframe.style.display = 'none';
             document.body.appendChild(iframe);
 
-            setTimeout(() => {
+            timeout.current = setTimeout(() => {
                 WSLogoutAndRedirect();
             }, 10000);
         }
