@@ -31,16 +31,11 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
         if (!isOAuth2Enabled) return;
 
         const onMessage = async (event: MessageEvent) => {
-            const allowedOrigin = getOAuthOrigin();
-            if (allowedOrigin === event.origin) {
-                if (event.data === 'logout_complete') {
-                    console.warn('logout completed');
-                    WSLogoutAndRedirect();
-                } else {
-                    console.warn('Unexpected message received: ', event.data);
-                }
+            if (event.data === 'logout_complete') {
+                console.warn('logout completed');
+                WSLogoutAndRedirect();
             } else {
-                console.warn('Unexpected postmessage origin: ', event.origin);
+                console.warn('Unexpected message received: Logout failed ', event.data);
             }
         };
 
