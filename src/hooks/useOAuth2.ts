@@ -31,7 +31,9 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
         if (!isOAuth2Enabled) return;
 
         const onMessage = async (event: MessageEvent) => {
+            console.warn('Message event received:', event);
             if (event.data === 'logout_complete') {
+                console.log(event);
                 WSLogoutAndRedirect();
             } else {
                 console.warn('Unexpected message received: Logout failed ', event.data);
