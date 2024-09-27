@@ -32,6 +32,8 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
 
         const onMessage = async (event: MessageEvent) => {
             const allowedOrigin = getOAuthOrigin();
+            console.log('allowedOrigin', allowedOrigin);
+            console.log('event.origin', event);
             if (allowedOrigin === event.origin) {
                 if (event.data === 'logout_complete') {
                     console.warn('logout completed');
