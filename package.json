@@ -20,9 +20,7 @@
         "access": "public"
     },
     "dependencies": {
-        "@deriv-com/utils": "^0.0.33",
-        "react": "^18.3.1",
-        "react-dom": "^18.3.1"
+        "@deriv-com/utils": "^0.0.33"
     },
     "devDependencies": {
         "semantic-release": "^23.0.6",
@@ -43,6 +41,8 @@
         "eslint-plugin-react-refresh": "^0.4.9",
         "globals": "^15.9.0",
         "prettier": "3.3.3",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1",
         "typescript": "^5.5.4",
         "typescript-eslint": "^8.0.1",
         "vite": "^5.4.1"
