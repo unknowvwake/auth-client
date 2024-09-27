@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react';
-import { getOAuthLogoutUrl, getOAuthOrigin } from '../constants/';
+import { getOAuthLogoutUrl } from '../constants/';
 import { useIsOAuth2Enabled } from './useIsOAuth2Enabled';
 
 type MessageEvent = {
@@ -32,7 +32,6 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
 
         const onMessage = async (event: MessageEvent) => {
             if (event.data === 'logout_complete') {
-                console.warn('logout completed');
                 WSLogoutAndRedirect();
             } else {
                 console.warn('Unexpected message received: Logout failed ', event.data);
