@@ -16,6 +16,8 @@ type OAuth2GBConfig = {
     OAuth2EnabledAppsInitialised: boolean;
 };
 
+const LOGOUT_TIMEOUT = 10000;
+
 /**
  * Custom hook to handle OAuth2 logout and redirection.
  *
@@ -29,18 +31,21 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
 
     const timeout = useRef<ReturnType<typeof setTimeout>>();
 
+    const cleanup = () => {
+        clearTimeout(timeout.current);
+
+        const iframe = document.getElementById('logout-iframe') as HTMLIFrameElement;
+        if (iframe) iframe.remove();
+    };
+
     const OAuth2Logout = useCallback(async () => {
-        if (!isOAuth2Enabled) {
-            WSLogoutAndRedirect();
-            return;
-        }
+        if (!isOAuth2Enabled) return WSLogoutAndRedirect();
 
         const onMessage = (event: MessageEvent) => {
             if (event.data === 'logout_complete') {
-                console.log('logout', event.data);
                 WSLogoutAndRedirect();
                 window.removeEventListener('message', onMessage);
-                clearTimeout(timeout.current);
+                cleanup();
             }
         };
         window.addEventListener('message', onMessage);
@@ -54,13 +59,17 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
 
             timeout.current = setTimeout(() => {
                 WSLogoutAndRedirect();
-            }, 10000);
+                window.removeEventListener('message', onMessage);
+                cleanup();
+            }, LOGOUT_TIMEOUT);
         }
 
         iframe.src = getOAuthLogoutUrl();
 
         iframe.onerror = error => {
             console.error('There has been a problem with the logout: ', error);
+            window.removeEventListener('message', onMessage);
+            cleanup();
         };
     }, [isOAuth2Enabled, WSLogoutAndRedirect]);
 
