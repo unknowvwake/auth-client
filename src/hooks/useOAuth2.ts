@@ -37,10 +37,12 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
 
         const onMessage = (event: MessageEvent) => {
             if (event.data === 'logout_complete') {
-                console.log('logout', event.data);
                 WSLogoutAndRedirect();
                 window.removeEventListener('message', onMessage);
                 clearTimeout(timeout.current);
+
+                const iframe = document.getElementById('logout-iframe') as HTMLIFrameElement;
+                if (iframe) iframe.remove();
             }
         };
         window.addEventListener('message', onMessage);
