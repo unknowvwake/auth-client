@@ -16,6 +16,8 @@ type OAuth2GBConfig = {
     OAuth2EnabledAppsInitialised: boolean;
 };
 
+const LOGOUT_TIMEOUT = 10000;
+
 /**
  * Custom hook to handle OAuth2 logout and redirection.
  *
@@ -59,7 +61,7 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
                 WSLogoutAndRedirect();
                 window.removeEventListener('message', onMessage);
                 cleanup();
-            }, 10000);
+            }, LOGOUT_TIMEOUT);
         }
 
         iframe.src = getOAuthLogoutUrl();
