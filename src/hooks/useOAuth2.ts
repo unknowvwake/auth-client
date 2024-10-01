@@ -29,20 +29,21 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
 
     const timeout = useRef<ReturnType<typeof setTimeout>>();
 
+    const cleanup = () => {
+        clearTimeout(timeout.current);
+
+        const iframe = document.getElementById('logout-iframe') as HTMLIFrameElement;
+        if (iframe) iframe.remove();
+    };
+
     const OAuth2Logout = useCallback(async () => {
-        if (!isOAuth2Enabled) {
-            WSLogoutAndRedirect();
-            return;
-        }
+        if (!isOAuth2Enabled) return WSLogoutAndRedirect();
 
         const onMessage = (event: MessageEvent) => {
             if (event.data === 'logout_complete') {
                 WSLogoutAndRedirect();
                 window.removeEventListener('message', onMessage);
-                clearTimeout(timeout.current);
-
-                const iframe = document.getElementById('logout-iframe') as HTMLIFrameElement;
-                if (iframe) iframe.remove();
+                cleanup();
             }
         };
         window.addEventListener('message', onMessage);
@@ -56,6 +57,8 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
 
             timeout.current = setTimeout(() => {
                 WSLogoutAndRedirect();
+                window.removeEventListener('message', onMessage);
+                cleanup();
             }, 10000);
         }
 
@@ -63,6 +66,8 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
 
         iframe.onerror = error => {
             console.error('There has been a problem with the logout: ', error);
+            window.removeEventListener('message', onMessage);
+            cleanup();
         };
     }, [isOAuth2Enabled, WSLogoutAndRedirect]);
 
