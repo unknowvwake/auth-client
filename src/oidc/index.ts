@@ -15,8 +15,8 @@ type OidcConfiguration = {
  * @throws {Error} - If there is a failure while fetching the OIDC configuration.
  */
 export const fetchOidcConfiguration = async (): Promise<OidcConfiguration> => {
-    const serverUrlLocalStorage = localStorage.getItem('config.server_url') || '';
-    const oidcUrl = `https://${serverUrlLocalStorage}/.well-known/openid-configuration`;
+    const server_url_from_local_storage = localStorage.getItem('config.server_url') || '';
+    const oidcUrl = `https://${server_url_from_local_storage}/.well-known/openid-configuration`;
 
     try {
         const response = await fetch(oidcUrl);
@@ -40,19 +40,19 @@ export const fetchOidcConfiguration = async (): Promise<OidcConfiguration> => {
 
 /**
  * Initiates the authentication flow by redirecting to the authorization endpoint.
- * @param {string} redirectUri - The URL to redirect to after authentication.
+ * @param {string} redirect_uri - The URL to redirect to after authentication.
  * @param {string} post_logout_redirect_uri - The URL to redirect to after logout.
  */
-export const requestOidcAuthentication = async (redirectUri: string, post_logout_redirect_uri: string) => {
-    const clientIdFromLocalStorage = localStorage.getItem('config.app_id') || '';
+export const requestOidcAuthentication = async (redirect_uri: string, post_logout_redirect_uri: string) => {
+    const client_id_from_local_storage = localStorage.getItem('config.app_id') || '';
 
     try {
         const oidc_config = await fetchOidcConfiguration();
 
         const userManager = new UserManager({
             authority: oidc_config.issuer,
-            client_id: clientIdFromLocalStorage,
-            redirect_uri: redirectUri,
+            client_id: client_id_from_local_storage,
+            redirect_uri: redirect_uri,
             response_type: 'code',
             scope: 'openid',
             stateStore: new WebStorageStateStore({ store: window.localStorage }),
