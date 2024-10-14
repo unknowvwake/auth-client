@@ -11,17 +11,11 @@ type OidcConfiguration = {
 
 /**
  * Fetches the OIDC configuration for the given serverUrl.
- *
- * @param {string} [serverUrl] - The URL of the server to fetch the OIDC configuration from.
- *                              If not provided, the value stored in local storage under the key 'config.server_url'
- *                              is used.
- *
  * @returns {Promise<object>} - A promise resolving to the OIDC configuration.
- *
  * @throws {Error} - If there is a failure while fetching the OIDC configuration.
  */
 export const fetchOidcConfiguration = async (): Promise<OidcConfiguration> => {
-    const serverUrlLocalStorage = localStorage.getItem('config.server_url');
+    const serverUrlLocalStorage = localStorage.getItem('config.server_url') || '';
     const oidcUrl = `https://${serverUrlLocalStorage}/.well-known/openid-configuration`;
 
     try {
@@ -46,11 +40,6 @@ export const fetchOidcConfiguration = async (): Promise<OidcConfiguration> => {
 
 /**
  * Initiates the authentication flow by redirecting to the authorization endpoint.
- *
- * @param {string} serverUrl - The URL of the server to authenticate with.
- * @param {string} clientId - The client id to use for authentication. If not provided,
- *                            the value stored in local storage under the key 'config.app_id'
- *                            will be used.
  * @param {string} redirectUri - The URL to redirect to after authentication.
  * @param {string} post_logout_redirect_uri - The URL to redirect to after logout.
  */
