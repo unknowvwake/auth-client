@@ -16,10 +16,10 @@ type OidcConfiguration = {
  */
 export const fetchOidcConfiguration = async (): Promise<OidcConfiguration> => {
     const server_url_from_local_storage = localStorage.getItem('config.server_url') || '';
-    const oidcUrl = `https://${server_url_from_local_storage}/.well-known/openid-configuration`;
+    const oidc_url = `https://${server_url_from_local_storage}/.well-known/openid-configuration`;
 
     try {
-        const response = await fetch(oidcUrl);
+        const response = await fetch(oidc_url);
         const data = await response.json();
 
         const endpoints = {
