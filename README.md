@@ -88,4 +88,35 @@ export default YourComponent;
 
 ## Phase 2: OIDC Public Client
 
-In this phase, we will transition to using an OIDC public client for authentication. Currently phase 1 is in development and OIDC public client will be implemented in the next phase.
+In this phase, we will transition to using an OIDC public client for authentication.
+
+## OIDC Login Flow - https://service-auth.deriv.team/resources/rfc/public-client/#login
+
+1. The app must first fetch the OpenID configuration /.well-known/openid-configuration to find the authorization_endpoint.
+2. Get the authorization_endpoint and redirect the user to the authorization_endpoint with the necessary parameters.
+3. The authorization server will authenticate the user and redirect the user back to the app with one time code.
+4. Get the token_endpoint from the OpenID configuration and exchange the one time code for an access token and id token.
+5. Make a POST request with Bearer token received from the token_endpoint to the legacy_endpoint to get the legacy tokens.
+6. Use the legacy tokens to authenticate the user.
+
+### Implementation Details
+
+### Setting Up OIDC Configuration
+
+In this phase, you will configure the OIDC endpoints by dynamically fetching the .well-known/openid-configuration from the server. The OIDC configuration file includes essential details like the authorization_endpoint, token_endpoint, and issuer.
+
+You can modify your configuration in the localStorage or retrieve the necessary details dynamically when required.
+
+### Using the OIDC Authentication Function
+
+```typescript
+import { requestOidcAuthentication } from '@deriv-com/auth-client';
+
+const handleLoginClick = async () => {
+    const app_id = 'your-app-id'; // The ID of your app
+    const redirect_uri = 'http://your-app/callback'; // The URL to redirect to after successful login
+    const postLogoutRedirectUri = 'http://your-app/'; // The URL to redirect to after logging out
+
+    await requestOidcAuthentication(app_id, redirect_uri, postLogoutRedirectUri); // If successful, the user will be redirected to the redirectUri
+};
+```
