@@ -94,7 +94,7 @@ In this phase, we will transition to using an OIDC public client for authenticat
 
 1. The app must first fetch the OpenID configuration /.well-known/openid-configuration to find the authorization_endpoint.
 2. Get the authorization_endpoint and redirect the user to the authorization_endpoint with the necessary parameters.
-3. The authorization server will authenticate the user and redirect the user back to the app with an one time code.
+3. The authorization server will authenticate the user and redirect the user back to the app with one time code.
 4. Get the token_endpoint from the OpenID configuration and exchange the one time code for an access token and id token.
 5. Make a POST request with Bearer token received from the token_endpoint to the legacy_endpoint to get the legacy tokens.
 6. Use the legacy tokens to authenticate the user.
