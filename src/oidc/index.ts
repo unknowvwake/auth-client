@@ -43,15 +43,19 @@ export const fetchOidcConfiguration = async (): Promise<OidcConfiguration> => {
  * @param {string} redirect_uri - The URL to redirect to after authentication.
  * @param {string} post_logout_redirect_uri - The URL to redirect to after logout.
  */
-export const requestOidcAuthentication = async (redirect_uri: string, post_logout_redirect_uri: string) => {
-    const client_id_from_local_storage = localStorage.getItem('config.app_id') || '';
+export const requestOidcAuthentication = async (
+    app_id: string,
+    redirect_uri: string,
+    post_logout_redirect_uri: string
+) => {
+    const client_id = app_id || localStorage.getItem('config.app_id') || '';
 
     try {
         const oidc_config = await fetchOidcConfiguration();
 
         const userManager = new UserManager({
             authority: oidc_config.issuer,
-            client_id: client_id_from_local_storage,
+            client_id: client_id,
             redirect_uri: redirect_uri,
             response_type: 'code',
             scope: 'openid',

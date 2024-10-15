@@ -113,9 +113,10 @@ You can modify your configuration in the localStorage or retrieve the necessary 
 import { requestOidcAuthentication } from '@deriv-com/auth-client';
 
 const handleLoginClick = async () => {
+    const app_id = 'your-app-id'; // The ID of your app
     const redirect_uri = 'http://your-app/callback'; // The URL to redirect to after successful login
     const postLogoutRedirectUri = 'http://your-app/'; // The URL to redirect to after logging out
 
-    await requestOidcAuthentication(redirect_uri, postLogoutRedirectUri); // If successful, the user will be redirected to the redirectUri
+    await requestOidcAuthentication(app_id, redirect_uri, postLogoutRedirectUri); // If successful, the user will be redirected to the redirectUri
 };
 ```
