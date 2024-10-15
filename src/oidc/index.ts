@@ -64,6 +64,7 @@ export const requestOidcAuthentication = async (
         });
 
         await userManager.signinRedirect();
+        return { userManager };
     } catch (error) {
         console.error('Authentication failed:', error);
         throw error;
