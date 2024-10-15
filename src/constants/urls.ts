@@ -1,4 +1,11 @@
-import { AppIDConstants, LocalStorageConstants, LocalStorageUtils, URLConstants, URLUtils } from '@deriv-com/utils';
+import {
+    AppIDConstants,
+    LocalStorageConstants,
+    LocalStorageUtils,
+    URLConstants,
+    URLUtils,
+    WebSocketUtils,
+} from '@deriv-com/utils';
 
 export const DEFAULT_OAUTH_LOGOUT_URL = 'https://oauth.deriv.com/oauth2/sessions/logout';
 
@@ -12,6 +19,9 @@ const SocketURL = {
 export const getServerInfo = () => {
     const origin = window.location.origin;
     const hostname = window.location.hostname;
+    const { getAppId } = WebSocketUtils;
+
+    const appIdFromUtils = getAppId();
 
     const existingAppId = LocalStorageUtils.getValue<string>(LocalStorageConstants.configAppId);
     const existingServerUrl = LocalStorageUtils.getValue<string>(LocalStorageConstants.configServerURL);
@@ -35,7 +45,7 @@ export const getServerInfo = () => {
 
     const serverUrl = /qa/.test(String(storedServerUrl)) ? storedServerUrl : 'oauth.deriv.com';
 
-    const appId = LocalStorageUtils.getValue<string>(LocalStorageConstants.configAppId);
+    const appId = LocalStorageUtils.getValue<string>(LocalStorageConstants.configAppId) || appIdFromUtils;
     const lang = LocalStorageUtils.getValue<string>(LocalStorageConstants.i18nLanguage);
 
     return {
