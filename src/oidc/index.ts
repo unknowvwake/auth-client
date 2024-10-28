@@ -10,15 +10,14 @@ type OidcConfiguration = {
     post_logout_redirect_uri: string;
 };
 
-
 /**
  * Fetches the OIDC configuration for the given serverUrl.
  * @returns {Promise<object>} - A promise resolving to the OIDC configuration.
  * @throws {Error} - If there is a failure while fetching the OIDC configuration.
  */
 export const fetchOidcConfiguration = async (): Promise<OidcConfiguration> => {
-    const config_from_local_storage = localStorage.getItem('config.oidc_endpoints')
-    if (config_from_local_storage) return JSON.parse(config_from_local_storage)
+    const config_from_local_storage = localStorage.getItem('config.oidc_endpoints');
+    if (config_from_local_storage) return JSON.parse(config_from_local_storage);
 
     const server_url_from_local_storage = localStorage.getItem('config.server_url') || 'oauth.deriv.com';
     const oidc_url = `https://${server_url_from_local_storage}/.well-known/openid-configuration`;
@@ -53,7 +52,6 @@ export const requestOidcAuthentication = async (
     redirect_uri: string,
     post_logout_redirect_uri: string
 ) => {
-
     try {
         const userManager = await createUserManager(app_id, redirect_uri, post_logout_redirect_uri);
 
@@ -66,50 +64,54 @@ export const requestOidcAuthentication = async (
 };
 
 /**
- * Requests access tokens from the Hydra authorization server. 
+ * Requests access tokens from the Hydra authorization server.
  * The returned access tokens will be used to fetch the original tokens that can be passed to the `authorize` endpoint
  * @param {string} app_id The app ID of the platform requesting the access tokens
  * @param {string} redirect_uri The URL to redirect to after authentication. This defaults to the current URL where this function is called
  * @param {string} post_logout_redirect_uri The URL to redirect to after logout. This defaults to the current URL where this function is called
  */
-export const requestOidcToken = async (app_id: string, redirect_uri: string = window.location.href, post_logout_redirect_uri: string = window.location.href) => {
+export const requestOidcToken = async (
+    app_id: string,
+    redirect_uri: string = window.location.href,
+    post_logout_redirect_uri: string = window.location.href
+) => {
     try {
-        const userManager = await createUserManager(app_id, redirect_uri, post_logout_redirect_uri)
+        const userManager = await createUserManager(app_id, redirect_uri, post_logout_redirect_uri);
 
         const user = await userManager.signinCallback();
 
         return {
-            accessToken: user?.access_token
-        }
-    } catch (err) {
-        console.error("unable to request access tokens: ", err)
-        throw err
+            accessToken: user?.access_token,
+        };
+    } catch (error) {
+        console.error('unable to request access tokens: ', error);
+        throw error;
     }
-}
+};
 
 /**
  * Fetches the tokens that will be passed to the `authorize` endpoint.
- * 
+ *
  * @param {string} accessToken The access token received after calling `requestOidcToken` successfully
  */
 export const requestLegacyToken = async (accessToken: string) => {
     const server_url_from_local_storage = localStorage.getItem('config.server_url') || 'oauth.deriv.com';
 
     try {
-        const response = await fetch(`https://${server_url_from_local_storage}/oauth2/legacy/tokens`, { 
-            method : 'POST',
+        const response = await fetch(`https://${server_url_from_local_storage}/oauth2/legacy/tokens`, {
+            method: 'POST',
             headers: {
-                'Authorization': `Bearer ${accessToken}`,
+                Authorization: `Bearer ${accessToken}`,
             },
         });
-        const data = await response.json()
+        const data = await response.json();
 
-        return data
-    } catch (err) {
-        console.error("unable to request legacy tokens: ", err)
-        throw err
+        return data;
+    } catch (error) {
+        console.error('unable to request legacy tokens: ', error);
+        throw error;
     }
-}
+};
 
 /**
  * Creates a UserManager instance that will be used to manage and call the OIDC flow
@@ -117,11 +119,7 @@ export const requestLegacyToken = async (accessToken: string) => {
  * @param {string} redirect_uri - The URL to redirect to after authentication.
  * @param {string} post_logout_redirect_uri - The URL to redirect to after logout.
  */
-export const createUserManager = async (
-    app_id: string,
-    redirect_uri: string,
-    post_logout_redirect_uri: string
-) => {
+export const createUserManager = async (app_id: string, redirect_uri: string, post_logout_redirect_uri: string) => {
     const client_id = app_id || localStorage.getItem('config.app_id') || WebSocketUtils.getAppId();
 
     try {
@@ -136,9 +134,9 @@ export const createUserManager = async (
             stateStore: new WebStorageStateStore({ store: window.localStorage }),
             post_logout_redirect_uri: post_logout_redirect_uri,
         });
-        return userManager
-    } catch (err) {
-        console.error("unable to create user manager for OIDC: ", err)
-        throw err
+        return userManager;
+    } catch (error) {
+        console.error('unable to create user manager for OIDC: ', error);
+        throw error;
     }
-}
+};
