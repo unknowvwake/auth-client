@@ -1,4 +1,5 @@
 import { UserManager, WebStorageStateStore } from 'oidc-client-ts';
+import { WebSocketUtils } from '@deriv-com/utils';
 
 type OidcConfiguration = {
     issuer: string;
@@ -15,7 +16,10 @@ type OidcConfiguration = {
  * @throws {Error} - If there is a failure while fetching the OIDC configuration.
  */
 export const fetchOidcConfiguration = async (): Promise<OidcConfiguration> => {
-    const server_url_from_local_storage = localStorage.getItem('config.server_url') || '';
+    const config_from_local_storage = localStorage.getItem('config.oidc_endpoints');
+    if (config_from_local_storage) return JSON.parse(config_from_local_storage);
+
+    const server_url_from_local_storage = localStorage.getItem('config.server_url') || 'oauth.deriv.com';
     const oidc_url = `https://${server_url_from_local_storage}/.well-known/openid-configuration`;
 
     try {
@@ -48,7 +52,75 @@ export const requestOidcAuthentication = async (
     redirect_uri: string,
     post_logout_redirect_uri: string
 ) => {
-    const client_id = app_id || localStorage.getItem('config.app_id') || '';
+    try {
+        const userManager = await createUserManager(app_id, redirect_uri, post_logout_redirect_uri);
+
+        await userManager.signinRedirect();
+        return { userManager };
+    } catch (error) {
+        console.error('Authentication failed:', error);
+        throw error;
+    }
+};
+
+/**
+ * Requests access tokens from the Hydra authorization server.
+ * The returned access tokens will be used to fetch the original tokens that can be passed to the `authorize` endpoint
+ * @param {string} app_id The app ID of the platform requesting the access tokens
+ * @param {string} redirect_uri The URL to redirect to after authentication. This defaults to the current URL where this function is called
+ * @param {string} post_logout_redirect_uri The URL to redirect to after logout. This defaults to the current URL where this function is called
+ */
+export const requestOidcToken = async (
+    app_id: string,
+    redirect_uri: string = window.location.href,
+    post_logout_redirect_uri: string = window.location.href
+) => {
+    try {
+        const userManager = await createUserManager(app_id, redirect_uri, post_logout_redirect_uri);
+
+        const user = await userManager.signinCallback();
+
+        return {
+            accessToken: user?.access_token,
+        };
+    } catch (error) {
+        console.error('unable to request access tokens: ', error);
+        throw error;
+    }
+};
+
+/**
+ * Fetches the tokens that will be passed to the `authorize` endpoint.
+ *
+ * @param {string} accessToken The access token received after calling `requestOidcToken` successfully
+ */
+export const requestLegacyToken = async (accessToken: string) => {
+    const server_url_from_local_storage = localStorage.getItem('config.server_url') || 'oauth.deriv.com';
+
+    try {
+        const response = await fetch(`https://${server_url_from_local_storage}/oauth2/legacy/tokens`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+        const data = await response.json();
+
+        return data;
+    } catch (error) {
+        console.error('unable to request legacy tokens: ', error);
+        throw error;
+    }
+};
+
+/**
+ * Creates a UserManager instance that will be used to manage and call the OIDC flow
+ * @param {string} app_id - The app ID of the platform
+ * @param {string} redirect_uri - The URL to redirect to after authentication.
+ * @param {string} post_logout_redirect_uri - The URL to redirect to after logout.
+ */
+export const createUserManager = async (app_id: string, redirect_uri: string, post_logout_redirect_uri: string) => {
+    const client_id = app_id || localStorage.getItem('config.app_id') || WebSocketUtils.getAppId();
 
     try {
         const oidc_config = await fetchOidcConfiguration();
@@ -62,11 +134,9 @@ export const requestOidcAuthentication = async (
             stateStore: new WebStorageStateStore({ store: window.localStorage }),
             post_logout_redirect_uri: post_logout_redirect_uri,
         });
-
-        await userManager.signinRedirect();
-        return { userManager };
+        return userManager;
     } catch (error) {
-        console.error('Authentication failed:', error);
+        console.error('unable to create user manager for OIDC: ', error);
         throw error;
     }
 };
