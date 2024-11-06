@@ -1,5 +1,6 @@
 import { UserManager, WebStorageStateStore } from 'oidc-client-ts';
 import { WebSocketUtils } from '@deriv-com/utils';
+import { OIDCError, OIDCErrorType } from './error';
 
 type OidcConfiguration = {
     issuer: string;
@@ -38,7 +39,7 @@ export const fetchOidcConfiguration = async (): Promise<OidcConfiguration> => {
         return data;
     } catch (error) {
         console.error('Failed to fetch OIDC configuration:', error);
-        throw error;
+        throw new OIDCError(OIDCErrorType.FailedToFetchOIDCConfiguration);
     }
 };
 
@@ -59,7 +60,7 @@ export const requestOidcAuthentication = async (
         return { userManager };
     } catch (error) {
         console.error('Authentication failed:', error);
-        throw error;
+        throw new OIDCError(OIDCErrorType.AuthenticationRequestFailed);
     }
 };
 
@@ -85,7 +86,7 @@ export const requestOidcToken = async (
         };
     } catch (error) {
         console.error('unable to request access tokens: ', error);
-        throw error;
+        throw new OIDCError(OIDCErrorType.AccessTokenRequestFailed);
     }
 };
 
@@ -109,7 +110,7 @@ export const requestLegacyToken = async (accessToken: string) => {
         return data;
     } catch (error) {
         console.error('unable to request legacy tokens: ', error);
-        throw error;
+        throw new OIDCError(OIDCErrorType.LegacyTokenRequestFailed);
     }
 };
 
@@ -137,6 +138,6 @@ export const createUserManager = async (app_id: string, redirect_uri: string, po
         return userManager;
     } catch (error) {
         console.error('unable to create user manager for OIDC: ', error);
-        throw error;
+        throw new OIDCError(OIDCErrorType.UserManagerCreationFailed);
     }
 };
