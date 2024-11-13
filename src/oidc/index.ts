@@ -1,6 +1,6 @@
 import { UserManager, WebStorageStateStore } from 'oidc-client-ts';
-import { WebSocketUtils } from '@deriv-com/utils';
 import { OIDCError, OIDCErrorType } from './error';
+import { getServerInfo } from '../constants';
 
 type OidcConfiguration = {
     issuer: string;
@@ -9,6 +9,16 @@ type OidcConfiguration = {
     response_type: string;
     scope: string;
     post_logout_redirect_uri: string;
+};
+
+type GetLegacyTokensResponse = {
+    acct1: string;
+    token1: string;
+};
+
+export type LegacyTokens = {
+    acct1: string;
+    token1: string;
 };
 
 /**
@@ -27,19 +37,13 @@ export const fetchOidcConfiguration = async (): Promise<OidcConfiguration> => {
         const response = await fetch(oidc_url);
         const data = await response.json();
 
-        const endpoints = {
-            authorization_endpoint: data.authorization_endpoint,
-            token_endpoint: data.token_endpoint,
-            userinfo_endpoint: data.userinfo_endpoint,
-            end_session_endpoint: data.end_session_endpoint,
-        };
-
-        localStorage.setItem('config.oidc_endpoints', JSON.stringify(endpoints));
+        localStorage.setItem('config.oidc_endpoints', JSON.stringify(data));
 
         return data;
     } catch (error) {
         console.error('Failed to fetch OIDC configuration:', error);
-        throw new OIDCError(OIDCErrorType.FailedToFetchOIDCConfiguration);
+        if (error instanceof Error) throw new OIDCError(OIDCErrorType.FailedToFetchOIDCConfiguration, error.message);
+        throw new OIDCError(OIDCErrorType.FailedToFetchOIDCConfiguration, 'unable to fetch OIDC configuration');
     }
 };
 
@@ -48,19 +52,16 @@ export const fetchOidcConfiguration = async (): Promise<OidcConfiguration> => {
  * @param {string} redirect_uri - The URL to redirect to after authentication.
  * @param {string} post_logout_redirect_uri - The URL to redirect to after logout.
  */
-export const requestOidcAuthentication = async (
-    app_id: string,
-    redirect_uri: string,
-    post_logout_redirect_uri: string
-) => {
+export const requestOidcAuthentication = async (redirect_uri: string, post_logout_redirect_uri: string) => {
     try {
-        const userManager = await createUserManager(app_id, redirect_uri, post_logout_redirect_uri);
+        const userManager = await createUserManager(redirect_uri, post_logout_redirect_uri);
 
         await userManager.signinRedirect();
         return { userManager };
     } catch (error) {
         console.error('Authentication failed:', error);
-        throw new OIDCError(OIDCErrorType.AuthenticationRequestFailed);
+        if (error instanceof Error) throw new OIDCError(OIDCErrorType.AuthenticationRequestFailed, error.message);
+        throw new OIDCError(OIDCErrorType.AuthenticationRequestFailed, 'unable to request OIDC authentication');
     }
 };
 
@@ -72,12 +73,11 @@ export const requestOidcAuthentication = async (
  * @param {string} post_logout_redirect_uri The URL to redirect to after logout. This defaults to the current URL where this function is called
  */
 export const requestOidcToken = async (
-    app_id: string,
     redirect_uri: string = window.location.href,
     post_logout_redirect_uri: string = window.location.href
 ) => {
     try {
-        const userManager = await createUserManager(app_id, redirect_uri, post_logout_redirect_uri);
+        const userManager = await createUserManager(redirect_uri, post_logout_redirect_uri);
 
         const user = await userManager.signinCallback();
 
@@ -86,7 +86,8 @@ export const requestOidcToken = async (
         };
     } catch (error) {
         console.error('unable to request access tokens: ', error);
-        throw new OIDCError(OIDCErrorType.AccessTokenRequestFailed);
+        if (error instanceof Error) throw new OIDCError(OIDCErrorType.AccessTokenRequestFailed, error.message);
+        throw new OIDCError(OIDCErrorType.AccessTokenRequestFailed, 'unable to request access tokens');
     }
 };
 
@@ -95,7 +96,7 @@ export const requestOidcToken = async (
  *
  * @param {string} accessToken The access token received after calling `requestOidcToken` successfully
  */
-export const requestLegacyToken = async (accessToken: string) => {
+export const requestLegacyToken = async (accessToken: string): Promise<GetLegacyTokensResponse> => {
     const server_url_from_local_storage = localStorage.getItem('config.server_url') || 'oauth.deriv.com';
 
     try {
@@ -110,7 +111,8 @@ export const requestLegacyToken = async (accessToken: string) => {
         return data;
     } catch (error) {
         console.error('unable to request legacy tokens: ', error);
-        throw new OIDCError(OIDCErrorType.LegacyTokenRequestFailed);
+        if (error instanceof Error) throw new OIDCError(OIDCErrorType.LegacyTokenRequestFailed, error.message);
+        throw new OIDCError(OIDCErrorType.LegacyTokenRequestFailed, 'unable to request legacy tokens');
     }
 };
 
@@ -120,15 +122,15 @@ export const requestLegacyToken = async (accessToken: string) => {
  * @param {string} redirect_uri - The URL to redirect to after authentication.
  * @param {string} post_logout_redirect_uri - The URL to redirect to after logout.
  */
-export const createUserManager = async (app_id: string, redirect_uri: string, post_logout_redirect_uri: string) => {
-    const client_id = app_id || localStorage.getItem('config.app_id') || WebSocketUtils.getAppId();
+export const createUserManager = async (redirect_uri: string, post_logout_redirect_uri: string) => {
+    const { appId } = getServerInfo();
 
     try {
         const oidc_config = await fetchOidcConfiguration();
 
         const userManager = new UserManager({
             authority: oidc_config.issuer,
-            client_id: client_id,
+            client_id: appId,
             redirect_uri: redirect_uri,
             response_type: 'code',
             scope: 'openid',
@@ -138,6 +140,7 @@ export const createUserManager = async (app_id: string, redirect_uri: string, po
         return userManager;
     } catch (error) {
         console.error('unable to create user manager for OIDC: ', error);
-        throw new OIDCError(OIDCErrorType.UserManagerCreationFailed);
+        if (error instanceof Error) throw new OIDCError(OIDCErrorType.UserManagerCreationFailed, error.message);
+        throw new OIDCError(OIDCErrorType.UserManagerCreationFailed, 'unable to create user manager for OIDC');
     }
 };
