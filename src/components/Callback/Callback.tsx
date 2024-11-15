@@ -1,7 +1,7 @@
 import { useCallback, useState, useEffect } from 'react';
 import { LegacyTokens, requestLegacyToken, requestOidcToken, OIDCError, OIDCErrorType } from '../../oidc';
-import { ReactComponent as ErrorIcon } from '../../assets/404.svg';
-import { ReactComponent as DerivLogoIcon } from '../../assets/deriv_logo.svg';
+import ErrorIcon from '../../assets/404.svg?react';
+import DerivLogoIcon from '../../assets/deriv_logo.svg?react';
 
 import './Callback.scss';
 
