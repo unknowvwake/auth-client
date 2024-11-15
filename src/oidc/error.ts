@@ -8,7 +8,7 @@ export enum OIDCErrorType {
 }
 
 export class OIDCError extends Error {
-    type: OIDCErrorType;
+    type?: OIDCErrorType;
 
     constructor(type: OIDCErrorType, message: string) {
         super(message);
