@@ -20,10 +20,15 @@
         "access": "public"
     },
     "dependencies": {
-        "@deriv-com/utils": "^0.0.37",
         "oidc-client-ts": "^3.1.0"
     },
+    "peerDependencies": {
+        "@deriv-com/utils": "^0.0.37",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1"
+    },
     "devDependencies": {
+        "@deriv-com/utils": "^0.0.37",
         "@eslint/js": "^9.9.0",
         "@semantic-release/changelog": "^6.0.3",
         "@semantic-release/github": "^10.0.2",
@@ -42,10 +47,14 @@
         "prettier": "3.3.3",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
+        "sass": "^1.80.6",
+        "sass-embedded": "^1.80.6",
         "semantic-release": "^23.0.6",
         "typescript": "^5.6.3",
         "typescript-eslint": "^8.0.1",
-        "vite": "^5.4.10",
-        "vite-plugin-dts": "^4.2.1"
+        "vite": "^5.4.1",
+        "vite-plugin-dts": "^4.2.1",
+        "vite-plugin-lib-inject-css": "^2.1.1",
+        "vite-plugin-svgr": "^4.3.0"
     }
 }

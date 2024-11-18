@@ -4,11 +4,16 @@ import { extname, relative, resolve } from 'path';
 import { fileURLToPath } from 'node:url';
 import { glob } from 'glob';
 import dts from 'vite-plugin-dts';
+import svgr from 'vite-plugin-svgr';
+import sass from 'sass';
+import { libInjectCss } from 'vite-plugin-lib-inject-css';
 
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [
         react(),
+        libInjectCss(),
+        svgr(),
         dts({
             include: ['src'],
             exclude: ['src/**/*.spec.tsx', 'src/App.tsx', 'src/main.tsx'],
@@ -16,6 +21,18 @@ export default defineConfig({
             insertTypesEntry: true,
         }),
     ],
+    resolve: {
+        alias: {
+            '@': resolve(__dirname, './src'),
+        },
+    },
+    css: {
+        preprocessorOptions: {
+            scss: {
+                implementation: sass,
+            },
+        },
+    },
     build: {
         lib: {
             entry: resolve(__dirname, 'src/index.ts'),
@@ -53,6 +70,10 @@ export default defineConfig({
             output: {
                 assetFileNames: 'assets/[name][extname]',
                 entryFileNames: '[name].js',
+                globals: {
+                    react: 'React',
+                    'react-dom': 'ReactDOM',
+                },
             },
         },
     },
