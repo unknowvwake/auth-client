@@ -47,17 +47,11 @@
         "prettier": "3.3.3",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
-        "sass": "^1.80.6",
-        "sass-embedded": "^1.80.6",
         "semantic-release": "^23.0.6",
         "typescript": "^5.6.3",
         "typescript-eslint": "^8.0.1",
         "vite": "^5.4.1",
         "vite-plugin-dts": "^4.2.1",
-        "vite-plugin-lib-inject-css": "^2.1.1",
         "vite-plugin-svgr": "^4.3.0"
-    },
-    "optionalDependencies": {
-        "@rollup/rollup-linux-x64-gnu": "4.9.5"
     }
 }
