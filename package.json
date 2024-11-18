@@ -21,9 +21,7 @@
     },
     "dependencies": {
         "oidc-client-ts": "^3.1.0",
-        "@deriv-com/utils": "^0.0.37",
-        "react": "^18.3.1",
-        "react-dom": "^18.3.1"
+        "@deriv-com/utils": "^0.0.37"
     },
     "devDependencies": {
         "@eslint/js": "^9.9.0",
