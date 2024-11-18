@@ -3,12 +3,14 @@ import { LegacyTokens, requestLegacyToken, requestOidcToken, OIDCError, OIDCErro
 import ErrorIcon from '../../assets/404.svg?react';
 import DerivLogoIcon from '../../assets/deriv_logo.svg?react';
 
-import './Callback.scss';
-
 const Loading = () => (
     <div className={`barspinner barspinner--dark dark`}>
         {Array.from(new Array(5)).map((_, inx) => (
-            <div key={inx} className={`barspinner__rect barspinner__rect--${inx + 1} rect${inx + 1}`} />
+            <div
+                key={inx}
+                className={`barspinner__rect barspinner__rect--${inx + 1} rect${inx + 1}`}
+                style={{ background: '#ff444f' }}
+            />
         ))}
     </div>
 );
@@ -121,11 +123,52 @@ export const Callback = ({
     }, []);
 
     return (
-        <div className='callback'>
-            <div className='callback__header'>
-                <DerivLogoIcon />
+        <div
+            style={{
+                fontFamily: 'Ubuntu, sans-serif',
+                height: '100vh',
+                width: '100vw',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+            }}
+        >
+            <div
+                style={{
+                    borderBottom: '1px solid #00000014',
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '1.4rem',
+                    position: 'absolute',
+                }}
+            >
+                <DerivLogoIcon
+                    style={{
+                        width: '72px',
+                        height: '24px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: 'auto 5%',
+                        minHeight: '5rem',
+                        color: '#ff444f',
+                    }}
+                />
             </div>
-            <div className='callback__content'>
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '100%',
+                    gap: '1rem',
+                }}
+            >
                 {!error && (
                     <>
                         <div className='callback__loading'>
