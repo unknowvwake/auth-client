@@ -2,6 +2,7 @@ import { useCallback, useState, useEffect } from 'react';
 import { LegacyTokens, requestLegacyToken, requestOidcToken, OIDCError, OIDCErrorType } from '../../oidc';
 import ErrorIcon from '../../assets/404.svg?react';
 import DerivLogoIcon from '../../assets/deriv_logo.svg?react';
+import './Callback.scss';
 
 const Loading = () => (
     <div className={`barspinner barspinner--dark dark`}>
@@ -24,12 +25,14 @@ type CallbackProps = {
     onSignInError?: (error: Error) => void;
     /** URI to redirect to the callback page. This is where you should pass the callback page URL in your app .e.g. https://app.deriv.com/callback or https://smarttrader.deriv.com/en/callback  */
     redirectCallbackUri?: string;
-    /** URI to redirect after authentication is completed or failed */
+    /** URI to redirect after authentication is completed or failed. Defaults to `config.post_login_redirect_uri` in local storage, and `window.location.origin` if local storage is not set */
     postLoginRedirectUri?: string;
-    /** URI to redirect after logout */
+    /** URI to redirect after logout. Defaults to `config.post_logout_redirect_uri` in local storage, and `window.location.origin` if local storage is not set */
     postLogoutRedirectUri?: string;
     /** callback function triggered when return button is clicked in error state */
     onClickReturn?: (error: OIDCError) => void;
+    /** renders the custom button for the return button when the error page is shown */
+    renderReturnButton?: () => React.ReactNode;
     /** custom error message to display */
     errorMessage?: string;
 };
@@ -65,6 +68,7 @@ export const Callback = ({
     redirectCallbackUri,
     postLoginRedirectUri,
     postLogoutRedirectUri,
+    renderReturnButton,
     errorMessage,
 }: CallbackProps) => {
     const [error, setError] = useState<Error | null>(null);
@@ -123,52 +127,11 @@ export const Callback = ({
     }, []);
 
     return (
-        <div
-            style={{
-                fontFamily: 'Ubuntu, sans-serif',
-                height: '100vh',
-                width: '100vw',
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'center',
-                position: 'relative',
-                display: 'flex',
-                alignItems: 'center',
-            }}
-        >
-            <div
-                style={{
-                    borderBottom: '1px solid #00000014',
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '1.4rem',
-                    position: 'absolute',
-                }}
-            >
-                <DerivLogoIcon
-                    style={{
-                        width: '72px',
-                        height: '24px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: 'auto 5%',
-                        minHeight: '5rem',
-                        color: '#ff444f',
-                    }}
-                />
+        <div className='callback'>
+            <div className='callback__header'>
+                <DerivLogoIcon />
             </div>
-            <div
-                style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '100%',
-                    gap: '1rem',
-                }}
-            >
+            <div className='callback__content'>
                 {!error && (
                     <>
                         <div className='callback__loading'>
@@ -182,7 +145,8 @@ export const Callback = ({
                         <ErrorIcon height={454} />
                         <h3>There was an issue logging you in</h3>
                         <p>{errorMessage || error.message}</p>
-                        <button onClick={onClickReturn}>Return to Home</button>
+                        {!renderReturnButton && <button onClick={onClickReturn}>Return to Home</button>}
+                        {renderReturnButton?.()}
                     </>
                 )}
             </div>
