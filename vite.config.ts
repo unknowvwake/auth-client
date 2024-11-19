@@ -5,14 +5,14 @@ import { fileURLToPath } from 'node:url';
 import { glob } from 'glob';
 import dts from 'vite-plugin-dts';
 import svgr from 'vite-plugin-svgr';
-// import sass from 'sass';
-// import { libInjectCss } from 'vite-plugin-lib-inject-css';
+import sass from 'sass';
+import { libInjectCss } from 'vite-plugin-lib-inject-css';
 
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [
         react(),
-        // libInjectCss(),
+        libInjectCss(),
         svgr(),
         dts({
             include: ['src'],
@@ -26,13 +26,13 @@ export default defineConfig({
             '@': resolve(__dirname, './src'),
         },
     },
-    // css: {
-    //     preprocessorOptions: {
-    //         scss: {
-    //             implementation: sass,
-    //         },
-    //     },
-    // },
+    css: {
+        preprocessorOptions: {
+            scss: {
+                implementation: sass,
+            },
+        },
+    },
     build: {
         lib: {
             entry: resolve(__dirname, 'src/index.ts'),
