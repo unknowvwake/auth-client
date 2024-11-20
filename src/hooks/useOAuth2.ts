@@ -45,6 +45,7 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
             if (event.data === 'logout_complete') {
                 WSLogoutAndRedirect();
                 window.removeEventListener('message', onMessage);
+                window.postMessage('clear_localStorage', '*');
                 cleanup();
             }
         };
