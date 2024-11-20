@@ -1,6 +1,7 @@
 import { useCallback, useRef } from 'react';
 import { getOAuthLogoutUrl } from '../constants/';
 import { useIsOAuth2Enabled } from './useIsOAuth2Enabled';
+import Cookies from 'js-cookie';
 
 type MessageEvent = {
     data: 'logout_complete' | 'logout_error';
@@ -43,9 +44,12 @@ export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRed
 
         const onMessage = (event: MessageEvent) => {
             if (event.data === 'logout_complete') {
+                Cookies.set('logged_state', 'false', {
+                    expires: 30,
+                    path: '/',
+                });
                 WSLogoutAndRedirect();
                 window.removeEventListener('message', onMessage);
-                window.postMessage('clear_localStorage', '*');
                 cleanup();
             }
         };

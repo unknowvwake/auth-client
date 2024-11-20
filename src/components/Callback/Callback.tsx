@@ -2,6 +2,8 @@ import { useCallback, useState, useEffect } from 'react';
 import { LegacyTokens, requestLegacyToken, requestOidcToken, OIDCError, OIDCErrorType } from '../../oidc';
 import ErrorIcon from '../../assets/404.svg?react';
 import DerivLogoIcon from '../../assets/deriv_logo.svg?react';
+import Cookies from 'js-cookie';
+
 import './Callback.scss';
 
 const Loading = () => (
@@ -86,6 +88,10 @@ export const Callback = ({
                 const legacyTokens = await requestLegacyToken(accessToken);
 
                 onSignInSuccess?.(legacyTokens);
+                Cookies.set('logged_state', 'true', {
+                    expires: 30,
+                    path: '/',
+                });
             }
         } catch (err) {
             if (err instanceof Error) {
