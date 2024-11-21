@@ -11,6 +11,11 @@ jobs:
       checks: write
       pull-requests: write
     steps:
+      - name: Verify user
+        uses: "deriv-com/shared-actions/.github/actions/verify_user_in_organization@v1"
+        with:
+          username: ${{github.event.pull_request.user.login}}
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
         with:
