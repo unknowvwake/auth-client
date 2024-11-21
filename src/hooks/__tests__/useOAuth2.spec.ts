@@ -69,6 +69,29 @@ describe('useOAuth2', () => {
         expect(WSLogoutAndRedirect).toHaveBeenCalled();
     });
 
-  
-  
+    it('should handle iframe onError event and call WSLogoutAndRedirect', async () => {
+        (useIsOAuth2Enabled as jest.Mock).mockReturnValue(true);
+        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+        const { result } = renderHook(() =>
+            useOAuth2({ OAuth2EnabledApps: [], OAuth2EnabledAppsInitialised: true }, WSLogoutAndRedirect)
+        );
+
+        await act(async () => {
+            result.current.OAuth2Logout();
+        });
+
+        const iframe = document.getElementById('logout-iframe') as HTMLIFrameElement;
+
+        expect(iframe).not.toBeNull();
+
+        act(() => {
+            iframe.onerror?.(new ErrorEvent('error', { message: 'Something went wrong with the iframe' }));
+        });
+
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+            'There has been a problem with the logout: ',
+            expect.any(ErrorEvent)
+        );
+    });
 });

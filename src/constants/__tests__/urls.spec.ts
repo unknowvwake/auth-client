@@ -74,13 +74,11 @@ describe('URLs', () => {
             const mockOrigin = 'https://staging-p2p.deriv.com';
             const mockHostname = 'staging-p2p.deriv.com';
 
-            // Mock window.location
             Object.defineProperty(window, 'location', {
                 value: { origin: mockOrigin, hostname: mockHostname },
                 writable: true,
             });
 
-            // Mock responses from LocalStorageUtils
             (LocalStorageUtils.getValue as jest.Mock).mockImplementation(key => {
                 if (key === LocalStorageConstants.configAppId) return null;
                 if (key === LocalStorageConstants.configServerURL) return null;
@@ -92,13 +90,10 @@ describe('URLs', () => {
                 if (key === LocalStorageConstants.configServerURL) expect(value).toBe('red.derivws.com');
             });
 
-            // Mock responses from WebSocketUtils
             (WebSocketUtils.getAppId as jest.Mock).mockReturnValue(null);
 
-            // Call getServerInfo
             getServerInfo();
 
-            // Assertions
             expect(LocalStorageUtils.setValue).toHaveBeenCalledTimes(2);
             expect(LocalStorageUtils.setValue).toHaveBeenCalledWith(LocalStorageConstants.configAppId, '62019');
             expect(LocalStorageUtils.setValue).toHaveBeenCalledWith(
