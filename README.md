@@ -1,5 +1,10 @@
 # Auth Client Project
 
+[![Coverage Status](https://coveralls.io/repos/github/deriv-com/auth-client/badge.svg?branch=master)](https://coveralls.io/github/deriv-com/auth-client?branch=master)
+[![Coveralls](https://github.com/deriv-com/auth-client/actions/workflows/coveralls.yml/badge.svg)](https://github.com/deriv-com/auth-client/actions/workflows/coveralls.yml)
+[![Build and Test](https://github.com/deriv-com/auth-client/actions/workflows/build.yml/badge.svg)](https://github.com/deriv-com/auth-client/actions/workflows/build.yml)
+[![Release](https://github.com/deriv-com/auth-client/actions/workflows/publish_npm.yml/badge.svg)](https://github.com/deriv-com/auth-client/actions/workflows/publish_npm.yml)
+
 This project is designed to handle authentication using OAuth2 with Hydra and OIDC. The project is divided into two phases:
 
 1. **Phase 1**: OAuth2 with Hydra
@@ -108,7 +113,9 @@ In this phase, you will configure the OIDC endpoints by dynamically fetching the
 You can modify your configuration in the localStorage or retrieve the necessary details dynamically when required.
 
 ### Using the OIDC Authentication Function
+
 To initiate the OIDC Authentication flow, you must first call `requestOidcAuthentication`, which will redirect the user to the URL specified in `redirect_uri`.
+
 ```typescript
 import { requestOidcAuthentication } from '@deriv-com/auth-client';
 
@@ -122,11 +129,11 @@ const handleLoginClick = async () => {
 ```
 
 Once the app has been redirected to the login page and user has entered their credentials, OIDC will redirect the user back to the `redirect_uri` URL that you have specified when calling `requestOidcAuthentication`. The redirect URL will have several new query parameters added automatically, which includes `code` containing the one-time ORY code in the format of `ory_ac...` and the scope which is `openid`.
-Once the user has been redirected to the page, `requestOidcToken` should be called next to retrieve the access tokens. 
+Once the user has been redirected to the page, `requestOidcToken` should be called next to retrieve the access tokens.
 
 ```typescript
 // RedirectPage.tsx
-import { requestOidcToken } from '@deriv-com/auth-client'
+import { requestOidcToken } from '@deriv-com/auth-client';
 
 const RedirectPage = () => {
     const fetchToken = async () => {
@@ -134,19 +141,20 @@ const RedirectPage = () => {
         const redirect_uri = 'http://your-app/callback'; // The URL to redirect to after successful login
         const postLogoutRedirectUri = 'http://your-app/'; // The URL to redirect to after logging out
 
-        const { accessToken } = await requestOidcToken(app_id, redirect_uri, postLogoutRedirectUri)
-    }
+        const { accessToken } = await requestOidcToken(app_id, redirect_uri, postLogoutRedirectUri);
+    };
 
     useEffect(() => {
-        fetchToken()
-    }, [])
-}
+        fetchToken();
+    }, []);
+};
 ```
+
 For the last step, when the access token has been fetched, you will need to call `requestLegacyToken` with the access token passed-in to get the tokens needed to be passed into the `authorize` endpoint.
 
 ```typescript
 // RedirectPage.tsx
-import { requestOidcToken, requestLegacyToken } from '@deriv-com/auth-client'
+import { requestOidcToken, requestLegacyToken } from '@deriv-com/auth-client';
 
 const RedirectPage = () => {
     const fetchToken = async () => {
@@ -154,17 +162,15 @@ const RedirectPage = () => {
         const redirect_uri = 'http://your-app/callback'; // The URL to redirect to after successful login
         const postLogoutRedirectUri = 'http://your-app/'; // The URL to redirect to after logging out
 
-        const { accessToken } = await requestOidcToken(app_id, redirect_uri, postLogoutRedirectUri)
+        const { accessToken } = await requestOidcToken(app_id, redirect_uri, postLogoutRedirectUri);
         // Once the access token is returned from `requestOidcToken` and is available, call `requestLegacyToken` to finally retrieve the tokens to pass into authorize
         const tokens = await requestLegacyToken(accessToken);
         // You can pass one of the tokens to authorize to login the user
-        callAuthorize(tokens.token1)
-    }
+        callAuthorize(tokens.token1);
+    };
 
     useEffect(() => {
-        fetchToken()
-    }, [])
-}
+        fetchToken();
+    }, []);
+};
 ```
-
-
