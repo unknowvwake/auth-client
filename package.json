@@ -12,8 +12,8 @@
         "prepublish": "npm run build",
         "preview": "vite preview",
         "watch": "vite build --watch",
-        "test": "jest",
-        "test:coverage": "jest --coverage",
+        "test": "jest --passWithNoTests",
+        "test:coverage": "jest --coverage --passWithNoTests --runInBand",
         "test:report": "jest --report"
     },
     "files": [
