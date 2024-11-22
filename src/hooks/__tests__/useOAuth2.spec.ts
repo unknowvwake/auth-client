@@ -46,6 +46,8 @@ describe('useOAuth2', () => {
         window.dispatchEvent(event);
 
         expect(Cookies.set).toHaveBeenCalledWith('logged_state', 'false', {
+            domain: 'localhost',
+            secure: true,
             expires: 30,
             path: '/',
         });
