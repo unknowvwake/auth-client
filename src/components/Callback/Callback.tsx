@@ -88,10 +88,16 @@ export const Callback = ({
                 const legacyTokens = await requestLegacyToken(accessToken);
 
                 onSignInSuccess?.(legacyTokens);
-                Cookies.set('logged_state', 'true', {
-                    expires: 30,
-                    path: '/',
-                });
+                const domains = ['deriv.com', 'binary.sx', 'pages.dev', 'localhost'];
+                const currentDomain = window.location.hostname.split('.').slice(-2).join('.');
+                if (domains.includes(currentDomain)) {
+                    Cookies.set('logged_state', 'true', {
+                        expires: 30,
+                        path: '/',
+                        domain: currentDomain,
+                        secure: true,
+                    });
+                }
             }
         } catch (err) {
             if (err instanceof Error) {
