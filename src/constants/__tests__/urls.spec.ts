@@ -69,6 +69,38 @@ describe('URLs', () => {
                 serverUrl: 'oauth.deriv.com',
             });
         });
+
+        it('should set configServerURL and configAppId if origin is staging-p2p.deriv.com and there is no existingAppId or existingServerUrl', () => {
+            const mockOrigin = 'https://staging-p2p.deriv.com';
+            const mockHostname = 'staging-p2p.deriv.com';
+
+            Object.defineProperty(window, 'location', {
+                value: { origin: mockOrigin, hostname: mockHostname },
+                writable: true,
+            });
+
+            (LocalStorageUtils.getValue as jest.Mock).mockImplementation(key => {
+                if (key === LocalStorageConstants.configAppId) return null;
+                if (key === LocalStorageConstants.configServerURL) return null;
+                return null;
+            });
+
+            (LocalStorageUtils.setValue as jest.Mock).mockImplementation((key, value) => {
+                if (key === LocalStorageConstants.configAppId) expect(value).toBe('62019');
+                if (key === LocalStorageConstants.configServerURL) expect(value).toBe('red.derivws.com');
+            });
+
+            (WebSocketUtils.getAppId as jest.Mock).mockReturnValue(null);
+
+            getServerInfo();
+
+            expect(LocalStorageUtils.setValue).toHaveBeenCalledTimes(2);
+            expect(LocalStorageUtils.setValue).toHaveBeenCalledWith(LocalStorageConstants.configAppId, '62019');
+            expect(LocalStorageUtils.setValue).toHaveBeenCalledWith(
+                LocalStorageConstants.configServerURL,
+                'red.derivws.com'
+            );
+        });
     });
 
     describe('getOauthUrl', () => {
@@ -92,6 +124,19 @@ describe('URLs', () => {
             const oauthUrl = getOauthUrl();
 
             expect(oauthUrl).toBe('https://oauth.deriv.com/oauth2/authorize');
+        });
+
+        it('should use default language "EN" if lang is not provided', () => {
+            (LocalStorageUtils.getValue as jest.Mock).mockImplementation((key: string) => {
+                if (key === LocalStorageConstants.configAppId) return '67890';
+                if (key === LocalStorageConstants.configServerURL) return 'qa.deriv.com';
+                if (key === LocalStorageConstants.i18nLanguage) return null;
+                return null;
+            });
+
+            const oauthUrl = getOauthUrl();
+
+            expect(oauthUrl).toBe('https://qa.deriv.com/oauth2/authorize?app_id=67890&l=EN&&brand=deriv');
         });
     });
 
