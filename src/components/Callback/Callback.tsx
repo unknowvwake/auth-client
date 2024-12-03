@@ -1,22 +1,11 @@
 import { useCallback, useState, useEffect } from 'react';
 import { LegacyTokens, requestLegacyToken, requestOidcToken, OIDCError, OIDCErrorType } from '../../oidc';
-import ErrorIcon from '../../assets/404.svg?react';
 import DerivLogoIcon from '../../assets/deriv_logo.svg?react';
 import Cookies from 'js-cookie';
+import Lottie from 'lottie-react';
+import callbackLoaderAnimation from '../../assets/callback_loader.json';
 
 import './Callback.scss';
-
-const Loading = () => (
-    <div className={`barspinner barspinner--dark dark`}>
-        {Array.from(new Array(5)).map((_, inx) => (
-            <div
-                key={inx}
-                className={`barspinner__rect barspinner__rect--${inx + 1} rect${inx + 1}`}
-                style={{ background: '#ff444f' }}
-            />
-        ))}
-    </div>
-);
 
 type CallbackProps = {
     /** callback function triggerred when `requestOidcToken` is successful. Use this only when you want to request the legacy tokens yourself, otherwise pass your callback to `onSignInSuccess` prop instead */
@@ -35,8 +24,6 @@ type CallbackProps = {
     onClickReturn?: (error: OIDCError) => void;
     /** renders the custom button for the return button when the error page is shown */
     renderReturnButton?: () => React.ReactNode;
-    /** custom error message to display */
-    errorMessage?: string;
 };
 
 /**
@@ -71,7 +58,6 @@ export const Callback = ({
     postLoginRedirectUri,
     postLogoutRedirectUri,
     renderReturnButton,
-    errorMessage,
 }: CallbackProps) => {
     const [error, setError] = useState<Error | null>(null);
 
@@ -140,24 +126,22 @@ export const Callback = ({
 
     return (
         <div className='callback'>
-            <div className='callback__header'>
-                <DerivLogoIcon />
-            </div>
             <div className='callback__content'>
                 {!error && (
                     <>
-                        <div className='callback__loading'>
-                            <Loading />
-                        </div>
-                        <h3>We are logging you in...</h3>
+                        <Lottie animationData={callbackLoaderAnimation} loop width={156} height={156} />
+                        <h3 className='callback__title'>Logging into your account</h3>
                     </>
                 )}
                 {error && (
                     <>
-                        <ErrorIcon height={454} />
-                        <h3>There was an issue logging you in</h3>
-                        <p>{errorMessage || error.message}</p>
-                        {!renderReturnButton && <button onClick={onClickReturn}>Return to Home</button>}
+                        <DerivLogoIcon width={92} height={92} />
+                        <h3 className='callback__title'>Unexpected error occured</h3>
+                        {!renderReturnButton && (
+                            <button className='callback__button' onClick={onClickReturn}>
+                                Try again
+                            </button>
+                        )}
                         {renderReturnButton?.()}
                     </>
                 )}

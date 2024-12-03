@@ -8,28 +8,7 @@
     background-position: center;
     position: relative;
     align-items: center;
-    background: white;
-
-    &__header {
-        border-bottom: 1px solid #00000014;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 1.4rem;
-        position: absolute;
-
-        & > svg {
-            width: 72px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: auto 5%;
-            min-height: 5rem;
-            color: #ff444f;
-        }
-    }
+    background: #ffffff;
 
     &__content {
         display: flex;
@@ -37,36 +16,30 @@
         justify-content: center;
         align-items: center;
         height: 100%;
-        gap: 1rem;
-
-        h3 {
-            color: #000000;
-            font-size: 34px;
-            text-align: center;
-            font-weight: bold;
-            margin: 0;
-        }
-
-        p {
-            font-weight: normal;
-            font-size: 16px;
-        }
-
-        button {
-            width: fit-content;
-        }
+        gap: 40px;
     }
 
-    &__loading {
-        div.barspinner {
-            & > div.barspinner__rect {
-                background: #ff444f !important;
-            }
-        }
+    &__title {
+        color: #000000;
+        font-size: 24px;
+        text-align: center;
+        font-weight: bold;
+        margin: 0;
     }
 
-    & > svg {
-        width: 20rem;
-        height: 10rem;
+    &__button {
+        border: 1px solid #000000;
+        border-radius: 16px;
+        font-weight: 700;
+        font-size: 16px;
+        line-height: 24px;
+        text-align: center;
+        background: inherit;
+        color: #000000;
+        max-height: 48px;
+    }
+
+    &__button:hover {
+        background: inherit;
     }
 }
