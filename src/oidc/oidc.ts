@@ -1,7 +1,8 @@
 import { UserManager, WebStorageStateStore } from 'oidc-client-ts';
 import { OIDCError, OIDCErrorType } from './error';
-import { getServerInfo } from '../constants';
+import { DEFAULT_OAUTH_LOGOUT_URL, getServerInfo } from '../constants';
 import { getConfigurations } from './config';
+import Cookies from 'js-cookie';
 
 export type OidcConfiguration = {
     issuer: string;
@@ -261,4 +262,52 @@ export const createUserManager = async (options: CreateUserManagerOptions) => {
         if (error instanceof Error) throw new OIDCError(OIDCErrorType.UserManagerCreationFailed, error.message);
         throw new OIDCError(OIDCErrorType.UserManagerCreationFailed, 'unable to create user manager for OIDC');
     }
+};
+
+/**
+ * Logs out the user from the auth server and calls the callback function when the logout is complete.
+ * @param WSLogoutAndRedirect - The callback function to call after the logout is complete
+ */
+export const OAuth2Logout = (WSLogoutAndRedirect: () => void) => {
+    const oidcEndpoints = localStorage.getItem('config.oidc_endpoints') || '{}';
+
+    const logoutUrl = JSON.parse(oidcEndpoints).end_session_endpoint || DEFAULT_OAUTH_LOGOUT_URL;
+    const cleanup = () => {
+        const iframe = document.getElementById('logout-iframe') as HTMLIFrameElement;
+        if (iframe) iframe.remove();
+    };
+    const onMessage = (event: MessageEvent) => {
+        if (event.data === 'logout_complete') {
+            const domains = ['deriv.com', 'binary.sx', 'pages.dev', 'localhost'];
+            const currentDomain = window.location.hostname.split('.').slice(-2).join('.');
+            if (domains.includes(currentDomain)) {
+                Cookies.set('logged_state', 'false', {
+                    expires: 30,
+                    path: '/',
+                    domain: currentDomain,
+                    secure: true,
+                });
+            }
+            WSLogoutAndRedirect();
+            cleanup();
+            window.removeEventListener('message', onMessage);
+        }
+    };
+
+    window.addEventListener('message', onMessage);
+
+    let iframe: HTMLIFrameElement | null = document.getElementById('logout-iframe') as HTMLIFrameElement;
+    if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.id = 'logout-iframe';
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+    }
+
+    iframe.src = logoutUrl;
+
+    iframe.onerror = error => {
+        console.error('There has been a problem with the logout: ', error);
+        cleanup();
+    };
 };

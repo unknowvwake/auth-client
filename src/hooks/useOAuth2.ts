@@ -25,6 +25,7 @@ const LOGOUT_TIMEOUT = 10000;
  * @param {OAuth2Config} config - Configuration object containing OAuth2 enabled apps flag and initialisation flag.
  * @param {(oauthUrl: string) => Promise<void>} WSLogoutAndRedirect - Function to handle logout and redirection.
  * @returns {{ OAuth2Logout: () => Promise<void> }} - Object containing the OAuth2Logout function.
+ * @deprecated Please use OAuth2Logout function instead of this hook from the `@deriv-com/auth-client` package.
  */
 export const useOAuth2 = (OAuth2GrowthBookConfig: OAuth2GBConfig, WSLogoutAndRedirect: () => Promise<void>) => {
     const { OAuth2EnabledApps, OAuth2EnabledAppsInitialised } = OAuth2GrowthBookConfig;
