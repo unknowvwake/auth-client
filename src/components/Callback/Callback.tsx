@@ -128,7 +128,7 @@ export const Callback = ({
             <div className='callback__content'>
                 {!error && (
                     <>
-                        <img src={DerivLoaderIcon} width={156} height={156} />
+                        <img src={DerivLoaderIcon} width={234} height={234} />
                         <h3 className='callback__title'>Logging into your account</h3>
                     </>
                 )}
