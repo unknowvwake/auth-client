@@ -311,3 +311,80 @@ export const OAuth2Logout = (WSLogoutAndRedirect: () => void) => {
         cleanup();
     };
 };
+
+/**
+ * Logs out the user from the OIDC provider using the SignOutRedirect function of the UserManager.
+ * @param {RequestOidcAuthenticationOptions} options - Configuration options for the OIDC logout request
+ * @param {string} options.redirectCallbackUri - The callback page URI to redirect back
+ * @param {string} options.postLogoutRedirectUri - The URI to redirect after successfully logging out
+ * @throws {Error} If the ID token is missing in session storage
+ */
+export const oidcLogout = async (options: RequestOidcAuthenticationOptions): Promise<void> => {
+    try {
+        const { redirectCallbackUri, postLogoutRedirectUri } = options;
+
+        const { appId } = getServerInfo();
+
+        const oidcConfig = JSON.parse(localStorage.getItem('config.oidc_endpoints') || '{}');
+        const serverUrl = oidcConfig.issuer;
+
+        const sessionStorageKey = `oidc.user:${serverUrl}:${appId}`;
+        const getSessionStorageOIDCUser = JSON.parse(window.sessionStorage.getItem(sessionStorageKey) || '{}');
+
+        if (!getSessionStorageOIDCUser.id_token) {
+            throw new Error('ID token is missing in session storage.');
+        }
+
+        const userManager = await createUserManager({
+            redirectCallbackUri,
+            postLogoutRedirectUri,
+        });
+
+        await userManager.signoutRedirect({
+            id_token_hint: getSessionStorageOIDCUser.id_token,
+            post_logout_redirect_uri: postLogoutRedirectUri,
+        });
+    } catch (error) {
+        console.error('Error during logout:', error);
+        throw error;
+    }
+};
+
+/**
+ * Checks if the user has completed the logout flow and calls the callback function from the consumer.
+ * At this point the user is already logged out from the auth server. This function is just to clear the FE session. 
+ * @description This is because the logout flow oidcLogout is redirecting the user to the post logout redirect uri,
+ * so this function needs to be called in your post logout redirect uri to clear the FE session.
+ * @param {() => void} callbackFunction - The callback function to call after the logout is complete
+ * @example
+ * ```typescript
+ * React.useEffect(() => {
+ *   handlePostLogout(() => {
+ *     // localStorage/sessionStorage cleanup
+ *   });
+ * }, []);
+ })
+ */
+export const handlePostLogout = (callbackFunction: () => void) => {
+    const { appId } = getServerInfo();
+
+    const oidcConfig = JSON.parse(localStorage.getItem('config.oidc_endpoints') || '{}');
+
+    const serverUrl = oidcConfig.issuer;
+
+    const sessionStorageKey = `oidc.user:${serverUrl}:${appId}`;
+
+    if (!window.sessionStorage.getItem(sessionStorageKey)) {
+        const domains = ['deriv.com', 'binary.sx', 'pages.dev', 'localhost'];
+        const currentDomain = window.location.hostname.split('.').slice(-2).join('.');
+        if (domains.includes(currentDomain)) {
+            Cookies.set('logged_state', 'false', {
+                expires: 30,
+                path: '/',
+                domain: currentDomain,
+                secure: true,
+            });
+        }
+        callbackFunction();
+    }
+};
