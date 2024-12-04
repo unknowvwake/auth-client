@@ -346,7 +346,7 @@ export const oidcLogout = async (options: RequestOidcAuthenticationOptions): Pro
         });
     } catch (error) {
         console.error('Error during logout:', error);
-        throw error;
+        throw new Error(`Logout failed. ${error}`);
     }
 };
 
