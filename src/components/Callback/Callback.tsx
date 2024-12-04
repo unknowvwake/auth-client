@@ -1,9 +1,8 @@
 import { useCallback, useState, useEffect } from 'react';
 import { LegacyTokens, requestLegacyToken, requestOidcToken, OIDCError, OIDCErrorType } from '../../oidc';
 import DerivLogoIcon from '../../assets/deriv_logo.svg?react';
+import DerivLoaderIcon from '../../assets/callback_loader.gif';
 import Cookies from 'js-cookie';
-import Lottie from 'lottie-react';
-import callbackLoaderAnimation from '../../assets/callback_loader.json';
 
 import './Callback.scss';
 
@@ -129,7 +128,7 @@ export const Callback = ({
             <div className='callback__content'>
                 {!error && (
                     <>
-                        <Lottie animationData={callbackLoaderAnimation} loop width={156} height={156} />
+                        <img src={DerivLoaderIcon} width={156} height={156} />
                         <h3 className='callback__title'>Logging into your account</h3>
                     </>
                 )}
