@@ -93,84 +93,110 @@ export default YourComponent;
 
 ## Phase 2: OIDC Public Client
 
-In this phase, we will transition to using an OIDC public client for authentication.
-
-## OIDC Login Flow - https://service-auth.deriv.team/resources/rfc/public-client/#login
-
-1. The app must first fetch the OpenID configuration /.well-known/openid-configuration to find the authorization_endpoint.
-2. Get the authorization_endpoint and redirect the user to the authorization_endpoint with the necessary parameters.
-3. The authorization server will authenticate the user and redirect the user back to the app with one time code.
-4. Get the token_endpoint from the OpenID configuration and exchange the one time code for an access token and id token.
-5. Make a POST request with Bearer token received from the token_endpoint to the legacy_endpoint to get the legacy tokens.
-6. Use the legacy tokens to authenticate the user.
+At Deriv, we are implementing Hydra and OpenID Connect (OIDC) to modernize and enhance our authentication and authorization mechanisms. This transition is crucial for ensuring secure, scalable, and standards-compliant access management for our applications and users.
 
 ### Implementation Details
 
-### Setting Up OIDC Configuration
+Most of the setup and implementation is already done in this library in the background. Just need to import a few things are you're good to go.
 
-In this phase, you will configure the OIDC endpoints by dynamically fetching the .well-known/openid-configuration from the server. The OIDC configuration file includes essential details like the authorization_endpoint, token_endpoint, and issuer.
+### Login Flow
 
-You can modify your configuration in the localStorage or retrieve the necessary details dynamically when required.
-
-### Using the OIDC Authentication Function
-
-To initiate the OIDC Authentication flow, you must first call `requestOidcAuthentication`, which will redirect the user to the URL specified in `redirect_uri`.
+-   Login button component
 
 ```typescript
-import { requestOidcAuthentication } from '@deriv-com/auth-client';
+import {requestOidcAuthentication } from '@deriv-com/auth-client';
 
-const handleLoginClick = async () => {
-    const app_id = 'your-app-id'; // The ID of your app
-    const redirect_uri = 'http://your-app/callback'; // The URL to redirect to after successful login
-    const postLogoutRedirectUri = 'http://your-app/'; // The URL to redirect to after logging out
+ const handleLogin = async () => {
+      await requestOidcAuthentication({
+        redirectCallbackUri: `${window.location.origin}/callback`,
+      });
+  };
 
-    await requestOidcAuthentication(app_id, redirect_uri, postLogoutRedirectUri); // If successful, the user will be redirected to the redirectUri
-};
+<button onClick={handleLogin}>Login</button>
 ```
 
-Once the app has been redirected to the login page and user has entered their credentials, OIDC will redirect the user back to the `redirect_uri` URL that you have specified when calling `requestOidcAuthentication`. The redirect URL will have several new query parameters added automatically, which includes `code` containing the one-time ORY code in the format of `ory_ac...` and the scope which is `openid`.
-Once the user has been redirected to the page, `requestOidcToken` should be called next to retrieve the access tokens.
+### Callback Page
+
+You would need to create a new route and page for this section in your app. This page will handle the legacy token issuance to the consumer apps.
 
 ```typescript
-// RedirectPage.tsx
-import { requestOidcToken } from '@deriv-com/auth-client';
+import React from 'react';
+import { Callback } from '@deriv-com/auth-client';
+import { transformAccountsFromResponseBody } from '@site/src/utils';
+import useAuthContext from '@site/src/hooks/useAuthContext';
 
-const RedirectPage = () => {
-    const fetchToken = async () => {
-        const app_id = 'your-app-id'; // The ID of your app
-        const redirect_uri = 'http://your-app/callback'; // The URL to redirect to after successful login
-        const postLogoutRedirectUri = 'http://your-app/'; // The URL to redirect to after logging out
+const CallbackPage = () => {
+  const { updateLoginAccounts } = useAuthContext();
 
-        const { accessToken } = await requestOidcToken(app_id, redirect_uri, postLogoutRedirectUri);
-    };
+  return (
+    <Callback
+      onSignInSuccess={(tokens) => {
+        const accounts = transformAccountsFromResponseBody(tokens);
 
-    useEffect(() => {
-        fetchToken();
-    }, []);
+        updateLoginAccounts(accounts);
+
+        window.location.href = '/';
+      }}
+    />
+  );
 };
+
+export default CallbackPage;
 ```
 
-For the last step, when the access token has been fetched, you will need to call `requestLegacyToken` with the access token passed-in to get the tokens needed to be passed into the `authorize` endpoint.
+The tokens returned from the onSignInSuccess will be of this format:
 
 ```typescript
-// RedirectPage.tsx
-import { requestOidcToken, requestLegacyToken } from '@deriv-com/auth-client';
+{
+  acct1: 'CR123123',
+  curr1: 'USD',
+  token1: 'a1-zxcnzxchzxc1'
+  acct2: 'CR998989',
+  curr2: 'EUR',
+  token2: 'a1-fidifdf0991',
+  ...
+}
+```
 
-const RedirectPage = () => {
-    const fetchToken = async () => {
-        const app_id = 'your-app-id'; // The ID of your app
-        const redirect_uri = 'http://your-app/callback'; // The URL to redirect to after successful login
-        const postLogoutRedirectUri = 'http://your-app/'; // The URL to redirect to after logging out
+You need to convert the tokens into a format that your app understands and works with. Once that’s done, save them securely in localStorage or sessionStorage.
 
-        const { accessToken } = await requestOidcToken(app_id, redirect_uri, postLogoutRedirectUri);
-        // Once the access token is returned from `requestOidcToken` and is available, call `requestLegacyToken` to finally retrieve the tokens to pass into authorize
-        const tokens = await requestLegacyToken(accessToken);
-        // You can pass one of the tokens to authorize to login the user
-        callAuthorize(tokens.token1);
-    };
+Most of the apps are already set up to look for things like client-accounts or accountsList in storage. If it finds them, it will automatically authorize the user in. Therefore after transforming the tokens and storing them its very crucial to redirect to the main page of your app, so the app can authorize successfully.
 
-    useEffect(() => {
-        fetchToken();
-    }, []);
+Once the legacy tokens are sent to the consumer apps, the library assumes that the user is logged in therefore it sets a cookie called logged_state to true. This will be helpful for the silent login and single logout feature.
+
+Note : The callback page does NOT handle authorize calls. Its sole purpose is to do the access token exchange and return back the legacy tokens to the consumer apps.
+
+## Logout Flow
+
+This logout process combines two parts: clearing OAuth session cookies through the OAuth2Logout function and running custom cleanup logic specific to your app (like clearing user accounts or tokens). Let’s break it down step-by-step:
+
+1. This function is provided by the @deriv-com/auth-client library. It uses an iframe to redirect the user to the end session endpoint of the OAuth provider. The main job of OAuth2Logout is to clear any cookies set by the OAuth system during the login session. Your App's Custom Logout Logic.
+
+2. In addition to clearing OAuth cookies, your app needs to handle its own logout tasks, such as: Logging the user out from the backend (via API or WebSocket calls). Clearing stored user data (like tokens or account information) from localStorage or sessionStorage.
+
+3. Combining Both The OAuth2Logout function allows you to pass your custom logout logic (called the consumer logout function) as a parameter. Once the OAuth session cookies are cleared, the consumer logout function runs to ensure the user is fully logged out from both the backend (BE) and frontend (FE).
+
+4. Once the logout is completed, the cookie logged_state will be set to false.
+
+```typescript
+import { OAuth2Logout } from '@deriv-com/auth-client';
+
+// we clean up everything related to the user here, for now it's just user's account
+// later on we should clear user tokens as well
+const logout = useCallback(async () => {
+    await apiManager.logout();
+    updateLoginAccounts([]);
+    updateCurrentLoginAccount({
+      name: '',
+      token: '',
+      currency: '',
+    });
+}, [updateCurrentLoginAccount, updateLoginAccounts]);
+
+const handleLogout = () => {
+    OAuth2Logout(logout);
 };
+
+// In your button
+<button onClick={handleLogout}>Logout</button>
 ```
