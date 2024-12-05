@@ -162,7 +162,7 @@ You need to convert the tokens into a format that your app understands and works
 
 Most of the apps are already set up to look for things like client-accounts or accountsList in storage. If it finds them, it will automatically authorize the user in. Therefore after transforming the tokens and storing them its very crucial to redirect to the main page of your app, so the app can authorize successfully.
 
-Once the legacy tokens are sent to the consumer apps, the library assumes that the user is logged in therefore it sets a cookie called logged_state to true. This will be helpful for the silent login and single logout feature
+Once the legacy tokens are sent to the consumer apps, the library assumes that the user is logged in therefore it sets a cookie called logged_state to true. This will be helpful for the silent login and single logout feature.
 
 Note : The callback page does NOT handle authorize calls. Its sole purpose is to do the access token exchange and return back the legacy tokens to the consumer apps.
 
