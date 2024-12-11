@@ -7,7 +7,7 @@ import Cookies from 'js-cookie';
 import './Callback.scss';
 
 type CallbackProps = {
-    /** callback function triggerred when `requestOidcToken` is successful. Use this only when you want to request the legacy tokens yourself, otherwise pass your callback to `onSignInSuccess` prop instead */
+    /** callback function triggered when `requestOidcToken` is successful. Use this only when you want to request the legacy tokens yourself, otherwise pass your callback to `onSignInSuccess` prop instead */
     onRequestOidcTokenSuccess?: (accessToken: string) => void;
     /** callback function triggered when the OIDC authentication flow is successful */
     onSignInSuccess?: (tokens: LegacyTokens) => void;
@@ -135,7 +135,7 @@ export const Callback = ({
                 {error && (
                     <>
                         <DerivLogoIcon width={92} height={92} />
-                        <h3 className='callback__title'>Unexpected error occured</h3>
+                        <h3 className='callback__title'>Unexpected error occurred</h3>
                         {!renderReturnButton && (
                             <button className='callback__button' onClick={onClickReturn}>
                                 Try again
